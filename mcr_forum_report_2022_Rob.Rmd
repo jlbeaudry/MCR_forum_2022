@@ -1,0 +1,145 @@
+---
+title: "DVCR Forum with MCRs (September 2022)"
+subtitle: "Summary of Responses to RDS Survey: Relevant to Forum"
+#author: "Jen Beaudry"
+#date: "29/09/2022"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+header-includes:
+    - \usepackage{caption}
+---
+
+```{r setup, include=FALSE}
+
+### NOTE: USE THIS FOR THE MINIMAL REPORT FOR ROB ###
+
+knitr::opts_chunk$set(echo = FALSE,
+                      include = TRUE, 
+                      eval = TRUE)
+
+# REMEMBER: Until you figure out parameterized reports, you'll have to manually 
+  # select which chunks to run and will need to delete the 'empty pages' that 
+  # aren't included in Rob's report
+
+```
+
+```{r functions, include = FALSE}
+
+styler_pdf <- function(dat) {
+  dat %>%
+     kable_styling(full_width = F, 
+                latex_options = c("striped", "HOLD_position"))
+}
+
+```
+
+```{r library, include=FALSE}
+
+library(here)
+library(tidyverse)
+library(kableExtra)
+library(RColorBrewer)
+
+```
+
+```{r load data, include=FALSE}
+
+df <- read_csv(here::here("data", "mcr_forum_processed.csv"), lazy = FALSE)
+
+```
+
+We asked our attendees four questions. One was about the forum, two were about
+their training and development needs, and one was an open-ended question giving 
+them an opportunity to tell us anything else they wanted us to know. The first and 
+last questions are most relevant to the DVC(R), Dean of Graduate Research, and 
+Director of Research Development and Support.
+
+\captionsetup[table]{labelformat=empty}
+
+## Question 1
+What would you like to see in future fora with the DVC(R)?
+
+```{r table for forum ideas for Rob, include=TRUE}
+
+# set this to TRUE and all other eval to FALSE to spit out report for Rob re
+  # DVCR fora ideas. We need to run this separately so the table includes the 
+  # response numbers rather than the ID numbers.
+
+# put relevant data in a tibble
+forum_ideas <- df %>% 
+  dplyr::select(c(id,`forum ideas`)) %>% 
+  filter(!`forum ideas` == "NA") %>%  # remove the NA values
+  mutate(responses = 1:n()) %>% 
+  relocate(responses, .after = id)
+
+# get the relevant ns for the header
+total_n <- length(unique(df$id))
+resp_n <- length(unique(forum_ideas$id))
+ns <- c(resp_n, total_n) 
+
+forum_ideas <- forum_ideas %>% 
+  dplyr::select(c(responses, `forum ideas`))
+
+knitr::kable (
+  forum_ideas,
+  booktabs = T,
+  linesep = "\\addlinespace",
+  col.names = c("Response #", "MCR Forum Ideas"),
+  caption =
+    sprintf("Responses from %s completed surveys", paste(ns, collapse = " people from ")),
+  align = 'cl', 
+  longtable = T #break the table over multiple pages
+  ) %>%
+  column_spec(2, width = "5in") %>% 
+  kable_styling(full_width = F, 
+                latex_options = c("repeat_header", "hold_position")) 
+
+# use different styling to repeat the header
+
+```
+
+
+\newpage
+\captionsetup[table]{labelformat=empty}
+
+## Question 2
+Is there anything else you would like us to know?
+
+```{r table for anything else for Rob, include = TRUE}
+
+# use for report for Rob
+
+# put relevant data in a tibble
+anything <- df %>% 
+  dplyr::select(c(id,`anything else`)) %>% 
+  filter(!`anything else` == "NA") %>%  # remove the NA values
+  mutate(responses = 1:n()) %>% 
+  relocate(responses, .after = id)
+
+# get the relevant ns for the header
+total_n <- length(unique(df$id))
+resp_n <- length(unique(anything$id))
+ns <- c(resp_n, total_n) 
+
+anything <- anything %>% 
+  dplyr::select(c(responses, `anything else`))
+
+knitr::kable (
+  anything,
+  booktabs = T,
+  linesep = "\\addlinespace",
+  col.names = c("Response #", "Other Ideas"),
+  caption =
+    sprintf("Responses from %s completed surveys", paste(ns, collapse = " people from ")),
+  align = 'cl', 
+  longtable = T #break the table over multiple pages
+  ) %>%
+  column_spec(2, width = "5in") %>% 
+  kable_styling(full_width = F, 
+                latex_options = c("repeat_header", "hold_position")) 
+
+# use different styling to repeat the header
+
+```
+
